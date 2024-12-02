@@ -1,20 +1,21 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import ListNotesScreen from './src/screens/Reminders';
+import AddNoteScreen from './src/screens/AddReminder';
+
+const Tab = createBottomTabNavigator();
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <NavigationContainer>
+        <Tab.Navigator>
+          <Tab.Screen name="Reminders" component={ListNotesScreen} />
+          <Tab.Screen name="Add Reminder" component={AddNoteScreen} />
+        </Tab.Navigator>
+      </NavigationContainer>
+    </GestureHandlerRootView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
