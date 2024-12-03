@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const NOTES_KEY = 'NOTES_KEY23r2352390';
+const NOTES_KEY = 'NOTES_KEY_7875594848';
 
 export const getNotes = async () => {
   const notes = await AsyncStorage.getItem(NOTES_KEY);

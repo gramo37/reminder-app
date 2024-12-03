@@ -1,34 +1,65 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { saveNotes } from '../utils/storage';
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
 
-const Reminder = ({ item, setNotes, notes }) => {
-  // const deleteNote = (id) => {
-  //   const updatedNotes = notes?.map((note) =>
-  //     note.id === id ? { ...note, note_status: "deleted" } : note
-  //   );
-  //   saveNotes(updatedNotes);
-  //   setNotes(updatedNotes);
-  // };
-
+const Reminder = ({ item }) => {
   return (
-    <View style={styles.noteItem}>
-      <Text>Sr No: {item.srNo}</Text>
-      <Text>Name: {item.name}</Text>
-      <Text>Contact: {item.contactNo}</Text>
-      <Text>Address: {item.address}</Text>
-      <Text>Next Visit: {item.nextVisitDate}</Text>
-      {/* {item?.note_status === "active" &&
-        <TouchableOpacity onPress={() => deleteNote(item.id)}>
-          <Text style={styles.deleteText}>Delete</Text>
-        </TouchableOpacity>
-      } */}
+    <View style={styles.card}>
+      <Text style={styles.title}>Reminder</Text>
+      <View style={styles.content}>
+        <Text style={styles.label}>Sr No:</Text>
+        <Text style={styles.value}>{item.srNo}</Text>
+      </View>
+      <View style={styles.content}>
+        <Text style={styles.label}>Name:</Text>
+        <Text style={styles.value}>{item.name}</Text>
+      </View>
+      <View style={styles.content}>
+        <Text style={styles.label}>Contact:</Text>
+        <Text style={styles.value}>{item.contactNo}</Text>
+      </View>
+      <View style={styles.content}>
+        <Text style={styles.label}>Address:</Text>
+        <Text style={styles.value}>{item.address}</Text>
+      </View>
+      <View style={styles.content}>
+        <Text style={styles.label}>Next Visit:</Text>
+        <Text style={styles.value}>{item.nextVisitDate}</Text>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  noteItem: { padding: 10, borderWidth: 1, marginBottom: 10 },
-  deleteText: { color: 'red' },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: "#ddd",
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "#333",
+  },
+  content: {
+    flexDirection: "row",
+    marginBottom: 8,
+  },
+  label: {
+    fontWeight: "600",
+    color: "#555",
+    width: 100,
+  },
+  value: {
+    color: "#000",
+    flex: 1,
+  },
 });
 
 export default Reminder;

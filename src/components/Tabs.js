@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Text, View, TouchableOpacity, StyleSheet } from "react-native";
 
 const Tabs = ({ filter, setFilter }) => {
@@ -8,17 +8,42 @@ const Tabs = ({ filter, setFilter }) => {
 
   return (
     <View style={styles.tabs}>
+      {/* Active Tab */}
       <TouchableOpacity
-        style={[styles.tab, filter === "active" && styles.activeTab]}
+        style={[
+          styles.tab,
+          filter === "active" && styles.activeTab,
+        ]}
         onPress={() => handleTabChange("active")}
+        accessibilityRole="button"
       >
-        <Text style={styles.tabText}>Active</Text>
+        <Text
+          style={[
+            styles.tabText,
+            filter === "active" && styles.activeTabText,
+          ]}
+        >
+          Active
+        </Text>
       </TouchableOpacity>
+
+      {/* Deleted Tab */}
       <TouchableOpacity
-        style={[styles.tab, filter === "deleted" && styles.activeTab]}
+        style={[
+          styles.tab,
+          filter === "deleted" && styles.activeTab,
+        ]}
         onPress={() => handleTabChange("deleted")}
+        accessibilityRole="button"
       >
-        <Text style={styles.tabText}>Deleted</Text>
+        <Text
+          style={[
+            styles.tabText,
+            filter === "deleted" && styles.activeTabText,
+          ]}
+        >
+          Deleted
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -26,34 +51,41 @@ const Tabs = ({ filter, setFilter }) => {
 
 export default Tabs;
 
+const colors = {
+  primary: "#007BFF",
+  secondary: "#ddd",
+  background: "#f9f9f9",
+  text: "#333",
+};
+
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 10 },
   tabs: {
     flexDirection: "row",
     justifyContent: "space-around",
     marginBottom: 10,
     borderBottomWidth: 1,
-    borderColor: "#ddd",
+    borderColor: colors.secondary,
+    backgroundColor: colors.background,
+    paddingVertical: 5,
   },
   tab: {
     flex: 1,
     alignItems: "center",
-    padding: 10,
+    paddingVertical: 10,
     borderBottomWidth: 2,
     borderColor: "transparent",
+    backgroundColor: colors.background,
   },
   activeTab: {
-    borderColor: "#007BFF",
+    borderColor: colors.primary,
+    backgroundColor: "#e8f4ff", // Light highlight
   },
   tabText: {
     fontSize: 16,
-    color: "#007BFF",
+    color: colors.text,
   },
-  noteItem: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    padding: 10,
-    marginBottom: 10,
-    borderRadius: 5,
+  activeTabText: {
+    color: colors.primary,
+    fontWeight: "bold",
   },
 });

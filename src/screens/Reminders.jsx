@@ -4,14 +4,14 @@ import {
   FlatList,
   TouchableOpacity,
   StyleSheet,
+  Text,
 } from "react-native";
-import { getNotes } from "../utils/storage";
+import { getNotes, saveNotes } from "../utils/storage";
 import Reminder from "../components/Reminder";
 import Tabs from "../components/Tabs";
 import Modal from "../components/Modal";
-import { saveNotes } from '../utils/storage';
 
-export default function ListNotesScreen({navigation, route}) {
+export default function ListNotesScreen({ navigation, route }) {
   const [notes, setNotes] = useState([]);
   const [filter, setFilter] = useState("active"); // 'active' | 'deleted'
 
@@ -21,7 +21,7 @@ export default function ListNotesScreen({navigation, route}) {
   useEffect(() => {
     const loadNotes = async () => {
       const storedNotes = await getNotes();
-      setNotes(storedNotes);
+      setNotes(storedNotes || []);
     };
     loadNotes();
   }, [filter, navigation, route]);
@@ -50,22 +50,43 @@ export default function ListNotesScreen({navigation, route}) {
 
   return (
     <View style={styles.container}>
-      <Tabs setFilter={setFilter} filter={filter} /> 
-      <FlatList
-        data={filteredNotes}
-        keyExtractor={(item) => item.id.toString()}
-        style={{marginTop: 10}}
-        renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => {
-            if(item?.note_status !== "active") return 
-            setModalVisible(true)
-            setSelectedNote(item)
-          }}>
-            <Reminder item={item} setNotes={setNotes} notes={notes}/>
-          </TouchableOpacity>
-        )}
-      />
-      <Modal 
+      {/* Tabs */}
+      <Tabs setFilter={setFilter} filter={filter} />
+
+      {/* Notes List */}
+      {filteredNotes.length > 0 ? (
+        <FlatList
+          data={filteredNotes}
+          keyExtractor={(item) => item.id.toString()}
+          style={styles.list}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={[
+                styles.touchable,
+                item.note_status === "deleted" && styles.disabledItem,
+              ]}
+              onPress={() => {
+                if (item.note_status !== "active") return;
+                setModalVisible(true);
+                setSelectedNote(item);
+              }}
+            >
+              <Reminder item={item} />
+            </TouchableOpacity>
+          )}
+        />
+      ) : (
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyText}>
+            {filter === "active"
+              ? "No active notes available."
+              : "No deleted notes available."}
+          </Text>
+        </View>
+      )}
+
+      {/* Note Modal */}
+      <Modal
         visible={isModalVisible}
         note={selectedNote}
         onClose={() => setModalVisible(false)}
@@ -77,5 +98,30 @@ export default function ListNotesScreen({navigation, route}) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 10 },
+  container: {
+    flex: 1,
+    padding: 10,
+    backgroundColor: "#f9f9f9",
+  },
+  list: {
+    // marginTop: 10,
+  },
+  touchable: {
+    marginBottom: 10,
+    borderRadius: 8,
+    overflow: "hidden",
+  },
+  disabledItem: {
+    opacity: 0.6,
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 20,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: "#aaa",
+  },
 });

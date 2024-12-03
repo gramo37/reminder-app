@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
   TextInput,
-  Button,
   StyleSheet,
   Alert,
   Text,
   Platform,
   View,
-  Modal
+  Modal,
+  TouchableOpacity,
 } from "react-native";
 import { getNotes, saveNotes } from "../utils/storage";
 import { ScrollView } from "react-native-gesture-handler";
@@ -45,15 +45,12 @@ export default function AddNoteScreen({ navigation, route }) {
   useEffect(() => {
     const fetchNotes = async () => {
       const storedNotes = await getNotes();
-
-      // Automatically set a unique Sr No
       const maxSrNo =
         storedNotes.length > 0
           ? Math.max(...storedNotes.map((n) => parseInt(n.srNo, 10) || 0))
           : 0;
       setNote((prevNote) => ({ ...prevNote, srNo: (maxSrNo + 1).toString() }));
     };
-
     fetchNotes();
   }, [route]);
 
@@ -139,8 +136,9 @@ export default function AddNoteScreen({ navigation, route }) {
   };
 
   return (
-    <>
-      <ScrollView style={styles.container}>
+    <ScrollView style={styles.container}>
+      <Text style={styles.title}>Add Reminder</Text>
+      <View style={styles.formGroup}>
         <Text style={styles.label}>Sr No</Text>
         <TextInput
           style={styles.input}
@@ -148,7 +146,9 @@ export default function AddNoteScreen({ navigation, route }) {
           value={note.srNo}
           onChangeText={(text) => setNote({ ...note, srNo: text })}
         />
+      </View>
 
+      <View style={styles.formGroup}>
         <Text style={styles.label}>Name</Text>
         <TextInput
           style={styles.input}
@@ -156,26 +156,32 @@ export default function AddNoteScreen({ navigation, route }) {
           value={note.name}
           onChangeText={(text) => setNote({ ...note, name: text })}
         />
+      </View>
 
+      <View style={styles.formGroup}>
         <Text style={styles.label}>Contact No</Text>
         <TextInput
           style={styles.input}
           placeholder="Contact No"
+          keyboardType="phone-pad"
           value={note.contactNo}
           onChangeText={(text) => setNote({ ...note, contactNo: text })}
         />
+      </View>
 
+      <View style={styles.formGroup}>
         <Text style={styles.label}>Address</Text>
         <TextInput
           style={styles.textArea}
           placeholder="Address"
-          value={note.address}
           multiline
-          numberOfLines={5}
+          value={note.address}
           onChangeText={(text) => setNote({ ...note, address: text })}
         />
+      </View>
 
-        <Text style={styles.label}>Site Status</Text>
+      <View style={styles.formGroup}>
+      <Text style={styles.label}>Site Status</Text>
         <TextInput
           style={styles.input}
           placeholder="Site Status"
@@ -192,12 +198,13 @@ export default function AddNoteScreen({ navigation, route }) {
           value={note.requirements}
           onChangeText={(text) => setNote({ ...note, requirements: text })}
         />
-
-        {/* Replace this with Date Picker */}
         <Text style={styles.label}>Next Visit Date</Text>
-        <Text>{date.toString()}</Text>
-        <Button title="Select Date and time" onPress={() => setShowPicker((prev) => !prev)} />
-
+        <TouchableOpacity
+          style={styles.dateButton}
+          onPress={() => setShowPicker(true)}
+        >
+          <Text>{dayjs(date).format("DD/MM/YYYY HH:mm")}</Text>
+        </TouchableOpacity>
         <Text style={styles.label}>Remarks</Text>
         <TextInput
           style={styles.input}
@@ -205,68 +212,98 @@ export default function AddNoteScreen({ navigation, route }) {
           value={note.remarks}
           onChangeText={(text) => setNote({ ...note, remarks: text })}
         />
+      </View>
 
-        <Button title="Save Note" onPress={handleSave} />
-      </ScrollView>
-      <Modal visible={showPicker} transparent={true} animationType="slide">
+      <View style={styles.formGroup}>
+        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+          <Text style={styles.saveButtonText}>Save Note</Text>
+        </TouchableOpacity>
+      </View>
+
+      <Modal visible={showPicker} transparent animationType="slide">
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <DateTimePicker
               mode="single"
               date={date}
               onChange={(params) => setDate(params.date)}
-              timePicker={true}
+              timePicker
             />
-            <Button
-              title="Confirm"
-              onPress={() => {
-                setShowPicker(false);
-              }}
-            />
-            <Button title="Cancel" onPress={() => setShowPicker(false)} />
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={() => setShowPicker(false)}
+            >
+              <Text style={styles.modalButtonText}>Confirm</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
-    </>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 10 },
-  label: {
-    fontSize: 16,
+  container: { flex: 1, padding: 16, backgroundColor: "#f9f9f9" },
+  title: {
+    fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 5,
+    marginBottom: 20,
+    color: "#333",
   },
-  input: { borderWidth: 1, padding: 10, marginBottom: 15, borderRadius: 5 },
+  formGroup: { marginBottom: 15 },
+  label: { fontSize: 16, fontWeight: "600", marginBottom: 8 },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 10,
+    backgroundColor: "#fff",
+  },
   textArea: {
     borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
     padding: 10,
-    height: 100,
+    backgroundColor: "#fff",
     textAlignVertical: "top",
-    marginBottom: 15,
-    borderRadius: 5,
+    height: 100,
   },
   dateButton: {
     borderWidth: 1,
-    padding: 10,
-    marginBottom: 15,
-    borderRadius: 5,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 12,
+    alignItems: "center",
+    backgroundColor: "#e0e0e0",
+  },
+  saveButton: {
+    backgroundColor: "#007bff",
+    borderRadius: 8,
+    padding: 12,
     alignItems: "center",
   },
+  saveButtonText: { color: "#fff", fontWeight: "600" },
   modalContainer: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
   modalContent: {
     width: "80%",
-    backgroundColor: "white",
+    backgroundColor: "#fff",
     padding: 20,
     borderRadius: 10,
     elevation: 5,
   },
+  modalButton: {
+    backgroundColor: "#007bff",
+    borderRadius: 8,
+    padding: 10,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  modalButtonText: { color: "#fff" },
 });
 
 async function registerForPushNotificationsAsync() {
