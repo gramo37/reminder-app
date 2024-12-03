@@ -13,7 +13,11 @@
     "@react-native-community/datetimepicker": "^8.2.0",
     "@react-navigation/bottom-tabs": "^7.1.2",
     "@react-navigation/native": "^7.0.12",
+    "dayjs": "^1.11.13",
     "expo": "~52.0.11",
+    "expo-constants": "~17.0.3",
+    "expo-device": "~7.0.1",
+    "expo-notifications": "~0.29.8",
     "expo-status-bar": "~2.0.0",
     "react": "18.3.1",
     "react-native": "0.76.3",
@@ -22,9 +26,7 @@
     "react-native-reanimated": "^3.16.3",
     "react-native-safe-area-context": "^4.14.0",
     "react-native-screens": "^4.3.0",
-    "expo-device": "~7.0.1",
-    "expo-notifications": "~0.29.8",
-    "expo-constants": "~17.0.3"
+    "react-native-ui-datepicker": "^2.0.4"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

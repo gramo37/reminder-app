@@ -5,13 +5,17 @@ import {
   StyleSheet,
   Alert,
   Text,
-  Platform
+  Platform,
+  View,
+  Modal
 } from "react-native";
 import { getNotes, saveNotes } from "../utils/storage";
 import { ScrollView } from "react-native-gesture-handler";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
+import DateTimePicker from "react-native-ui-datepicker";
+import dayjs from "dayjs";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -30,10 +34,11 @@ export default function AddNoteScreen({ navigation, route }) {
     siteStatus: "",
     requirements: "",
     date: new Date().toISOString(),
-    nextVisitDate: new Date().toISOString(),
     remarks: "",
     note_status: "active",
   });
+  const [date, setDate] = useState(dayjs().format("YYYY-MM-DD HH:mm"));
+  const [showPicker, setShowPicker] = useState(false);
   const notificationListener = useRef();
   const responseListener = useRef();
 
@@ -61,7 +66,6 @@ export default function AddNoteScreen({ navigation, route }) {
       siteStatus: "",
       requirements: "",
       date: new Date().toISOString(),
-      nextVisitDate: new Date().toISOString(),
       remarks: "",
       note_status: "active",
     });
@@ -96,10 +100,7 @@ export default function AddNoteScreen({ navigation, route }) {
   }, []);
 
   async function schedulePushNotification() {
-    let date = new Date();
-    //Add 20 seconds to the current date to test it.
-    // Later use the nextVistDate to schedule reminders
-    date.setSeconds(date.getSeconds() + 20);
+    let date2 = new Date(date);
 
     await Notifications.scheduleNotificationAsync({
       content: {
@@ -107,29 +108,30 @@ export default function AddNoteScreen({ navigation, route }) {
         body: note.requirements,
         data: { data: "goes here", test: { test1: "more data" } },
       },
-      trigger: { 
+      trigger: {
         type: "date",
-        date 
+        date: date2,
       },
     });
   }
 
   const handleSave = async () => {
     try {
-      if (!note.name || !note.contactNo || !note.nextVisitDate) {
+      if (!note.name || !note.contactNo || !date) {
         Alert.alert("Error", "Please fill all required fields.");
         return;
       }
-  
+
       const notes = await getNotes();
-      const newNote = { ...note, id: Date.now(), date: Date.now() };
+      const newNote = { ...note, id: Date.now(), date: Date.now(), nextVisitDate: date };
       await saveNotes([...notes, newNote]);
-  
-      // Schedule notifications for the nextVisitDate
+
       await schedulePushNotification();
 
-      alert(`Reminder "${note.name}" scheduled successfully for next visit date "${note.nextVisitDate.toISOString()}"`)
-  
+      alert(
+        `Reminder "${note.name}" scheduled successfully for next visit date "${date}"`
+      );
+
       navigation.navigate("Reminders", { reload: true });
     } catch (error) {
       console.log(error);
@@ -137,78 +139,95 @@ export default function AddNoteScreen({ navigation, route }) {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.label}>Sr No</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Sr No"
-        value={note.srNo}
-        onChangeText={(text) => setNote({ ...note, srNo: text })}
-      />
+    <>
+      <ScrollView style={styles.container}>
+        <Text style={styles.label}>Sr No</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Sr No"
+          value={note.srNo}
+          onChangeText={(text) => setNote({ ...note, srNo: text })}
+        />
 
-      <Text style={styles.label}>Name</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Name"
-        value={note.name}
-        onChangeText={(text) => setNote({ ...note, name: text })}
-      />
+        <Text style={styles.label}>Name</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Name"
+          value={note.name}
+          onChangeText={(text) => setNote({ ...note, name: text })}
+        />
 
-      <Text style={styles.label}>Contact No</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Contact No"
-        value={note.contactNo}
-        onChangeText={(text) => setNote({ ...note, contactNo: text })}
-      />
+        <Text style={styles.label}>Contact No</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Contact No"
+          value={note.contactNo}
+          onChangeText={(text) => setNote({ ...note, contactNo: text })}
+        />
 
-      <Text style={styles.label}>Address</Text>
-      <TextInput
-        style={styles.textArea}
-        placeholder="Address"
-        value={note.address}
-        multiline
-        numberOfLines={5}
-        onChangeText={(text) => setNote({ ...note, address: text })}
-      />
+        <Text style={styles.label}>Address</Text>
+        <TextInput
+          style={styles.textArea}
+          placeholder="Address"
+          value={note.address}
+          multiline
+          numberOfLines={5}
+          onChangeText={(text) => setNote({ ...note, address: text })}
+        />
 
-      <Text style={styles.label}>Site Status</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Site Status"
-        value={note.siteStatus}
-        onChangeText={(text) => setNote({ ...note, siteStatus: text })}
-      />
+        <Text style={styles.label}>Site Status</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Site Status"
+          value={note.siteStatus}
+          onChangeText={(text) => setNote({ ...note, siteStatus: text })}
+        />
 
-      <Text style={styles.label}>Requirements</Text>
-      <TextInput
-        style={styles.textArea}
-        placeholder="Requirements"
-        multiline
-        numberOfLines={5}
-        value={note.requirements}
-        onChangeText={(text) => setNote({ ...note, requirements: text })}
-      />
+        <Text style={styles.label}>Requirements</Text>
+        <TextInput
+          style={styles.textArea}
+          placeholder="Requirements"
+          multiline
+          numberOfLines={5}
+          value={note.requirements}
+          onChangeText={(text) => setNote({ ...note, requirements: text })}
+        />
 
-      {/* Replace this with Date Picker */}
-      <Text style={styles.label}>Next Visit Date</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Next Visit Date"
-        value={note.nextVisitDate}
-        onChangeText={(text) => setNote({ ...note, nextVisitDate: text })}
-      />
+        {/* Replace this with Date Picker */}
+        <Text style={styles.label}>Next Visit Date</Text>
+        <Text>{date.toString()}</Text>
+        <Button title="Select Date and time" onPress={() => setShowPicker((prev) => !prev)} />
 
-      <Text style={styles.label}>Remarks</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Remarks"
-        value={note.remarks}
-        onChangeText={(text) => setNote({ ...note, remarks: text })}
-      />
+        <Text style={styles.label}>Remarks</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Remarks"
+          value={note.remarks}
+          onChangeText={(text) => setNote({ ...note, remarks: text })}
+        />
 
-      <Button title="Save Note" onPress={handleSave} />
-    </ScrollView>
+        <Button title="Save Note" onPress={handleSave} />
+      </ScrollView>
+      <Modal visible={showPicker} transparent={true} animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <DateTimePicker
+              mode="single"
+              date={date}
+              onChange={(params) => setDate(params.date)}
+              timePicker={true}
+            />
+            <Button
+              title="Confirm"
+              onPress={() => {
+                setShowPicker(false);
+              }}
+            />
+            <Button title="Cancel" onPress={() => setShowPicker(false)} />
+          </View>
+        </View>
+      </Modal>
+    </>
   );
 }
 
@@ -227,6 +246,26 @@ const styles = StyleSheet.create({
     textAlignVertical: "top",
     marginBottom: 15,
     borderRadius: 5,
+  },
+  dateButton: {
+    borderWidth: 1,
+    padding: 10,
+    marginBottom: 15,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    width: "80%",
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 10,
+    elevation: 5,
   },
 });
 
